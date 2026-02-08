@@ -5,7 +5,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiUser, FiBriefcase, FiUsers, FiTrendi
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import QuickActionButton from '../../components/ui/QuickActionButton';
-import GoogleSignIn from '../../components/auth/GoogleSignIn';
+import EnhancedGoogleSignIn from '../../components/auth/EnhancedGoogleSignIn';
 import toast from 'react-hot-toast';
 
 // Animation variants
@@ -455,14 +455,14 @@ const Login = () => {
                   </div>
                 </motion.div>
 
-                {/* Google Sign-In */}
+                {/* Enhanced Google Sign-In */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.0 }}
                   className="mb-8"
                 >
-                  <GoogleSignIn
+                  <EnhancedGoogleSignIn
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
                     disabled={isSubmitting}
