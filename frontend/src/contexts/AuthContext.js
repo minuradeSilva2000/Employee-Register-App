@@ -176,12 +176,17 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
-      // Store access token in localStorage
+      // Store access token in localStorage FIRST
       if (googleData.accessToken) {
         localStorage.setItem('accessToken', googleData.accessToken);
       }
       
-      // Update state with user data
+      // Store refresh token if available
+      if (googleData.refreshToken) {
+        localStorage.setItem('refreshToken', googleData.refreshToken);
+      }
+      
+      // Update state with user data AFTER tokens are stored
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: { user: googleData.user },
@@ -189,6 +194,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log('✅ Google login successful in AuthContext');
       
+      // Return user data for navigation
       return { success: true, user: googleData.user };
     } catch (error) {
       const errorMessage = error.message || 'Google login failed';
@@ -214,10 +220,10 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         const { accessToken, refreshToken, user } = response.data;
         
-        // Store tokens
+        // Store tokens FIRST
         setTokens(accessToken, refreshToken);
         
-        // Update state
+        // Update state AFTER tokens are stored
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: { user },
@@ -225,6 +231,7 @@ export const AuthProvider = ({ children }) => {
 
         toast.success(`Welcome back, ${user.name}!`);
         
+        // Return user data for navigation
         return { success: true, user };
       } else {
         throw new Error(response.message || 'Login failed');

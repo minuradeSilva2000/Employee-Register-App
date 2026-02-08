@@ -145,12 +145,15 @@ const Login = () => {
     try {
       const result = await loginWithGoogle(googleData);
       if (result.success) {
+        // Wait a bit for state to update before navigating
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Auto-redirect based on user role
         const userRole = result.user.role;
         if (userRole === 'Admin') {
-          navigate('/admin/dashboard');
+          navigate('/admin/dashboard', { replace: true });
         } else {
-          navigate('/user/dashboard');
+          navigate('/user/dashboard', { replace: true });
         }
       }
     } catch (error) {
@@ -178,16 +181,20 @@ const Login = () => {
       const result = await login(formData);
       
       if (result.success) {
+        // Wait a bit for state to update before navigating
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Auto-redirect based on user role
         const userRole = result.user.role;
         if (userRole === 'Admin') {
-          navigate('/admin/dashboard');
+          navigate('/admin/dashboard', { replace: true });
         } else {
-          navigate('/user/dashboard');
+          navigate('/user/dashboard', { replace: true });
         }
       }
     } catch (error) {
       // Error is handled by AuthContext
+      console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -231,15 +238,20 @@ const Login = () => {
 
   // Handle Quick Action click with role-based access validation
   const handleQuickActionClick = (action) => {
-    // For demo purposes, show a message that user needs to login first
-    // In production, this would navigate after login
-    toast(`${action.title} - Login required to access this feature`, {
-      icon: '🔒',
-      style: {
-        background: '#f59e0b',
-        color: '#fff',
-      },
-    });
+    // Check if user is authenticated
+    if (isAuthenticated) {
+      // User is logged in, navigate to the page
+      navigate(action.route);
+    } else {
+      // User is not logged in, show login required message
+      toast(`${action.title} - Login required to access this feature`, {
+        icon: '🔒',
+        style: {
+          background: '#f59e0b',
+          color: '#fff',
+        },
+      });
+    }
   };
 
   if (isLoading) {
