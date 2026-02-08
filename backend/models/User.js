@@ -77,10 +77,11 @@ const userSchema = new mongoose.Schema({
     default: null
   },
   
-  refreshToken: {
-    type: String,
-    select: false
-  },
+  refreshTokens: [{
+    token: String,
+    createdAt: { type: Date, default: Date.now },
+    expiresAt: Date
+  }],
   
   passwordResetToken: {
     type: String,
@@ -96,7 +97,7 @@ const userSchema = new mongoose.Schema({
   toJSON: {
     transform: function(doc, ret) {
       delete ret.password;
-      delete ret.refreshToken;
+      delete ret.refreshTokens;
       delete ret.passwordResetToken;
       delete ret.passwordResetExpires;
       delete ret.__v;
@@ -106,8 +107,9 @@ const userSchema = new mongoose.Schema({
 });
 
 /**
- * Indexes for performance
+ * Indexes for performance - Remove duplicates
  */
+// Only define indexes here, not in field definitions
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ googleId: 1 }, { sparse: true });
 userSchema.index({ role: 1 });
