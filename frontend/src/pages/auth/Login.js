@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser, FiBriefcase, FiUsers, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import QuickActionButton from '../../components/ui/QuickActionButton';
 import GoogleSignIn from '../../components/auth/GoogleSignIn';
 import toast from 'react-hot-toast';
 
@@ -69,22 +70,6 @@ const formVariants = {
   },
 };
 
-const quickActionVariants = {
-  initial: {
-    y: 20,
-    opacity: 0,
-  },
-  animate: (index) => ({
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.4,
-      ease: 'easeOut',
-      delay: 0.9 + index * 0.1,
-    },
-  }),
-};
-
 const Login = () => {
   const navigate = useNavigate();
   const { login, loginWithGoogle, isAuthenticated, isLoading } = useAuth();
@@ -132,8 +117,6 @@ const Login = () => {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
     
     setErrors(newErrors);
@@ -148,13 +131,8 @@ const Login = () => {
         // Wait a bit for state to update before navigating
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Auto-redirect based on user role
-        const userRole = result.user.role;
-        if (userRole === 'Admin') {
-          navigate('/admin/dashboard', { replace: true });
-        } else {
-          navigate('/user/dashboard', { replace: true });
-        }
+        // Redirect to main dashboard for all users
+        navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Google login error:', error);
@@ -167,7 +145,7 @@ const Login = () => {
     toast.error('Google Sign-In failed. Please try again.');
   };
 
-  // Handle form submission
+  // Handle form submission with proper error handling and security
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -181,19 +159,23 @@ const Login = () => {
       const result = await login(formData);
       
       if (result.success) {
+        // Clear any previous errors
+        setErrors({});
+        
         // Wait a bit for state to update before navigating
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Auto-redirect based on user role
-        const userRole = result.user.role;
-        if (userRole === 'Admin') {
-          navigate('/admin/dashboard', { replace: true });
-        } else {
-          navigate('/user/dashboard', { replace: true });
-        }
+        // Redirect to main dashboard for all users
+        navigate('/', { replace: true });
+      } else {
+        // Handle login failure - show "Invalid credentials" message and clear password
+        setErrors({ general: 'Invalid credentials.' });
+        setFormData(prev => ({ ...prev, password: '' })); // Clear password field for security
       }
     } catch (error) {
-      // Error is handled by AuthContext
+      // Handle any other errors - show "Invalid credentials" message and clear password
+      setErrors({ general: 'Invalid credentials.' });
+      setFormData(prev => ({ ...prev, password: '' })); // Clear password field for security
       console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
@@ -203,56 +185,38 @@ const Login = () => {
   // Quick actions for demo purposes with proper routing and role-based access
   const quickActions = [
     {
-      icon: FiUser,
-      title: 'Manage Employees',
-      description: 'Add, edit, and manage employee records',
-      color: 'from-blue-500 to-blue-600',
-      route: '/employees',
-      roleAccess: ['Admin', 'HR'] // Who can access this page
-    },
-    {
-      icon: FiBriefcase,
-      title: 'Departments',
-      description: 'Organize departments and job roles',
-      color: 'from-purple-500 to-purple-600',
-      route: '/departments',
-      roleAccess: ['Admin', 'HR', 'Viewer']
-    },
-    {
-      icon: FiUsers,
-      title: 'Attendance',
-      description: 'Track employee attendance and time',
-      color: 'from-green-500 to-green-600',
-      route: '/attendance',
-      roleAccess: ['Admin', 'HR', 'Viewer']
-    },
-    {
       icon: FiTrendingUp,
       title: 'Analytics',
       description: 'View reports and insights',
       color: 'from-orange-500 to-orange-600',
       route: '/dashboard',
       roleAccess: ['Admin', 'HR', 'Viewer']
+    },
+    {
+      icon: FiBriefcase,
+      title: 'Management',
+      description: 'Administrative controls and summaries',
+      color: 'from-purple-500 to-purple-600',
+      route: '/admin/dashboard',
+      roleAccess: ['Admin']
+    },
+    {
+      icon: FiUsers,
+      title: 'Department Management',
+      description: 'Organize departments and job roles',
+      color: 'from-green-500 to-green-600',
+      route: '/departments',
+      roleAccess: ['Admin', 'HR']
+    },
+    {
+      icon: FiUser,
+      title: 'Employee Management',
+      description: 'Add, edit, and manage employee records',
+      color: 'from-blue-500 to-blue-600',
+      route: '/employees',
+      roleAccess: ['Admin', 'HR']
     }
   ];
-
-  // Handle Quick Action click with role-based access validation
-  const handleQuickActionClick = (action) => {
-    // Check if user is authenticated
-    if (isAuthenticated) {
-      // User is logged in, navigate to the page
-      navigate(action.route);
-    } else {
-      // User is not logged in, show login required message
-      toast(`${action.title} - Login required to access this feature`, {
-        icon: '🔒',
-        style: {
-          background: '#f59e0b',
-          color: '#fff',
-        },
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -300,25 +264,16 @@ const Login = () => {
                   <h3 className="text-xl font-semibold mb-6">Quick Actions</h3>
                   <div className="space-y-4">
                     {quickActions.map((action, index) => (
-                      <motion.div
+                      <QuickActionButton
                         key={action.title}
-                        custom={index}
-                        variants={quickActionVariants}
-                        initial="initial"
-                        animate="animate"
-                        whileHover={{ scale: 1.02, x: 10 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handleQuickActionClick(action)}
-                        className="flex items-center space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl cursor-pointer hover:bg-white/20 transition-all duration-200"
-                      >
-                        <div className={`p-3 rounded-lg bg-gradient-to-r ${action.color}`}>
-                          <action.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-white">{action.title}</h4>
-                          <p className="text-primary-100 text-sm">{action.description}</p>
-                        </div>
-                      </motion.div>
+                        icon={action.icon}
+                        title={action.title}
+                        description={action.description}
+                        color={action.color}
+                        route={action.route}
+                        requiredRoles={action.roleAccess}
+                        index={index}
+                      />
                     ))}
                   </div>
                 </motion.div>
@@ -465,6 +420,22 @@ const Login = () => {
                       'Sign In'
                     )}
                   </motion.button>
+
+                  {/* Error Message Display */}
+                  {errors.general && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+                    >
+                      <p className="text-sm text-red-600 font-medium flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.general}
+                      </p>
+                    </motion.div>
+                  )}
                 </form>
 
                 {/* Divider */}
@@ -498,25 +469,83 @@ const Login = () => {
                   />
                 </motion.div>
 
-                {/* Demo Accounts */}
+                {/* Demo Accounts Section */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 1.0 }}
-                  className="mt-8 p-4 bg-gray-50 rounded-lg"
+                  className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                 >
-                  <p className="text-sm text-gray-600 mb-2">Demo Accounts:</p>
-                  <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="font-medium">Admin:</span> admin@example.com / Admin@123
+                  <div className="flex items-center mb-4">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
                     </div>
-                    <div>
-                      <span className="font-medium">HR:</span> hr@example.com / Hr@123
+                    <h3 className="text-lg font-semibold text-gray-900">Demo Accounts</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Try the system with these pre-configured demo accounts:
+                  </p>
+                  <div className="space-y-3">
+                    <div 
+                      className="p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                      onClick={() => {
+                        setFormData({ email: 'admin@example.com', password: 'Admin@123' });
+                        setErrors({});
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-medium text-blue-600">Admin Account</span>
+                          <p className="text-xs text-gray-500 mt-1">Full system access</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-mono text-gray-600">admin@example.com</p>
+                          <p className="text-xs font-mono text-gray-600">Admin@123</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-medium">Viewer:</span> viewer@example.com / Viewer@123
+                    <div 
+                      className="p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-purple-300 hover:shadow-sm transition-all duration-200"
+                      onClick={() => {
+                        setFormData({ email: 'hr@example.com', password: 'Hr@123' });
+                        setErrors({});
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-medium text-purple-600">HR Account</span>
+                          <p className="text-xs text-gray-500 mt-1">Employee & department management</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-mono text-gray-600">hr@example.com</p>
+                          <p className="text-xs font-mono text-gray-600">Hr@123</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div 
+                      className="p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-green-300 hover:shadow-sm transition-all duration-200"
+                      onClick={() => {
+                        setFormData({ email: 'viewer@example.com', password: 'Viewer@123' });
+                        setErrors({});
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-medium text-green-600">Viewer Account</span>
+                          <p className="text-xs text-gray-500 mt-1">Read-only access</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-mono text-gray-600">viewer@example.com</p>
+                          <p className="text-xs font-mono text-gray-600">Viewer@123</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-4 text-center">
+                    Click any demo account to auto-fill the login form
+                  </p>
                 </motion.div>
               </motion.div>
             </motion.div>

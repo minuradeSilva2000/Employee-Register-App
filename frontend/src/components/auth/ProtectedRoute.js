@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const ProtectedRoute = ({ children, requiredRoles = [], requiredPermissions = [] }) => {
-  const { isAuthenticated, isLoading, user, hasRole, hasPermission, hasAnyRole, hasAnyPermission } = useAuth();
+  const { isAuthenticated, isLoading, user, hasAnyRole, hasAnyPermission } = useAuth();
   const location = useLocation();
+
+  // Show login required message when accessing protected routes without authentication
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast.error('Login required to access this feature.', {
+        duration: 4000,
+        icon: '🔒',
+        style: {
+          background: '#ef4444',
+          color: '#fff',
+        },
+      });
+    }
+  }, [isLoading, isAuthenticated]);
 
   // Show loading spinner while checking authentication
   if (isLoading) {

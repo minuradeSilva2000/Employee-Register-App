@@ -210,7 +210,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login function
+  // Login function with proper error handling
   const login = async (credentials) => {
     try {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
@@ -234,23 +234,24 @@ export const AuthProvider = ({ children }) => {
         // Return user data for navigation
         return { success: true, user };
       } else {
-        throw new Error(response.message || 'Login failed');
+        throw new Error(response.message || 'Invalid credentials');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+      const errorMessage = error.response?.data?.message || error.message || 'Invalid credentials';
       
       dispatch({
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: errorMessage,
       });
 
-      toast.error(errorMessage);
+      // Don't show toast here - let the component handle it
+      console.error('Login failed:', errorMessage);
       
       return { success: false, error: errorMessage };
     }
   };
 
-  // Logout function
+  // Logout function with complete session cleanup
   const logout = async () => {
     try {
       const { refreshToken } = getTokens();
@@ -276,7 +277,17 @@ export const AuthProvider = ({ children }) => {
       // Clear tokens and update state
       clearTokens();
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
+      
+      // Clear any cached data
+      if (window.sessionStorage) {
+        window.sessionStorage.clear();
+      }
+      
+      // Show success message
       toast.success('Logged out successfully');
+      
+      // Force redirect to login page
+      window.location.href = '/login';
     }
   };
 

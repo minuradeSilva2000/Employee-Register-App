@@ -16,6 +16,7 @@ import Layout from './components/layout/Layout';
 // Pages
 import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
+import PostLoginDashboard from './pages/PostLoginDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserDashboard from './pages/user/UserDashboard';
 import Employees from './pages/employees/Employees';
@@ -138,9 +139,25 @@ function App() {
                     } 
                   />
 
-                  {/* Dashboard */}
+                  {/* Dashboard - Default route */}
                   <Route 
                     index 
+                    element={
+                      <motion.div
+                        initial="initial"
+                        animate="in"
+                        exit="out"
+                        variants={pageVariants}
+                        transition={pageTransition}
+                      >
+                        <PostLoginDashboard />
+                      </motion.div>
+                    } 
+                  />
+
+                  {/* Analytics Dashboard */}
+                  <Route 
+                    path="dashboard" 
                     element={
                       <motion.div
                         initial="initial"
@@ -154,65 +171,73 @@ function App() {
                     } 
                   />
 
-                  {/* Employee Management */}
+                  {/* Employee Management - Role Protected */}
                   <Route 
                     path="employees" 
                     element={
-                      <motion.div
-                        initial="initial"
-                        animate="in"
-                        exit="out"
-                        variants={pageVariants}
-                        transition={pageTransition}
-                      >
-                        <Employees />
-                      </motion.div>
+                      <RoleRoute requiredRoles={['Admin', 'HR']}>
+                        <motion.div
+                          initial="initial"
+                          animate="in"
+                          exit="out"
+                          variants={pageVariants}
+                          transition={pageTransition}
+                        >
+                          <Employees />
+                        </motion.div>
+                      </RoleRoute>
                     } 
                   />
                   <Route 
                     path="employees/:id" 
                     element={
-                      <motion.div
-                        initial="initial"
-                        animate="in"
-                        exit="out"
-                        variants={pageVariants}
-                        transition={pageTransition}
-                      >
-                        <EmployeeDetail />
-                      </motion.div>
+                      <RoleRoute requiredRoles={['Admin', 'HR']}>
+                        <motion.div
+                          initial="initial"
+                          animate="in"
+                          exit="out"
+                          variants={pageVariants}
+                          transition={pageTransition}
+                        >
+                          <EmployeeDetail />
+                        </motion.div>
+                      </RoleRoute>
                     } 
                   />
 
-                  {/* Department Management */}
+                  {/* Department Management - Role Protected */}
                   <Route 
                     path="departments" 
                     element={
-                      <motion.div
-                        initial="initial"
-                        animate="in"
-                        exit="out"
-                        variants={pageVariants}
-                        transition={pageTransition}
-                      >
-                        <Departments />
-                      </motion.div>
+                      <RoleRoute requiredRoles={['Admin', 'HR']}>
+                        <motion.div
+                          initial="initial"
+                          animate="in"
+                          exit="out"
+                          variants={pageVariants}
+                          transition={pageTransition}
+                        >
+                          <Departments />
+                        </motion.div>
+                      </RoleRoute>
                     } 
                   />
 
-                  {/* Job Title Management */}
+                  {/* Job Title Management - Role Protected */}
                   <Route 
                     path="job-titles" 
                     element={
-                      <motion.div
-                        initial="initial"
-                        animate="in"
-                        exit="out"
-                        variants={pageVariants}
-                        transition={pageTransition}
-                      >
-                        <JobTitles />
-                      </motion.div>
+                      <RoleRoute requiredRoles={['Admin', 'HR']}>
+                        <motion.div
+                          initial="initial"
+                          animate="in"
+                          exit="out"
+                          variants={pageVariants}
+                          transition={pageTransition}
+                        >
+                          <JobTitles />
+                        </motion.div>
+                      </RoleRoute>
                     } 
                   />
 
@@ -232,19 +257,21 @@ function App() {
                     } 
                   />
 
-                  {/* User Management */}
+                  {/* User Management - Admin Only */}
                   <Route 
                     path="users" 
                     element={
-                      <motion.div
-                        initial="initial"
-                        animate="in"
-                        exit="out"
-                        variants={pageVariants}
-                        transition={pageTransition}
-                      >
-                        <Users />
-                      </motion.div>
+                      <RoleRoute requiredRoles={['Admin']}>
+                        <motion.div
+                          initial="initial"
+                          animate="in"
+                          exit="out"
+                          variants={pageVariants}
+                          transition={pageTransition}
+                        >
+                          <Users />
+                        </motion.div>
+                      </RoleRoute>
                     } 
                   />
 

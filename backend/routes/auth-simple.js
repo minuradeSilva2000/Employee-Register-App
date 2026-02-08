@@ -22,8 +22,10 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Find user by email (include password field)
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by email (case-insensitive) and include password field
+    const user = await User.findOne({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') } 
+    }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -55,11 +57,11 @@ router.post('/login', async (req, res) => {
       });
     }
     
-    // For demo purposes, bypass password check and use hardcoded validation
-    // In production, this should be: const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('Debug - Input password:', password);
-    console.log('Debug - Expected password: Admin@123');
-    const isPasswordValid = password === 'Admin@123';
+    // Use proper password validation with bcrypt
+    console.log('Debug - Input password:', password ? 'provided' : 'missing');
+    console.log('Debug - User email:', user.email);
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     console.log('Password validation result:', isPasswordValid);
     
     if (!isPasswordValid) {
