@@ -3,7 +3,7 @@
  * Production-ready Google OAuth integration with comprehensive error handling and configuration validation
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FcGoogle } from 'react-icons/fc';
 import { FiAlertCircle, FiSettings, FiExternalLink } from 'react-icons/fi';
@@ -47,7 +47,7 @@ const EnhancedGoogleSignIn = ({
   /**
    * Load Google Identity Services Script
    */
-  const loadGoogleScript = () => {
+  const loadGoogleScript = useCallback(() => {
     return new Promise((resolve, reject) => {
       // Check if already loaded
       if (window.google?.accounts?.id) {
@@ -94,12 +94,12 @@ const EnhancedGoogleSignIn = ({
       
       document.head.appendChild(script);
     });
-  };
+  }, []);
 
   /**
    * Handle Google Sign-In Response
    */
-  const handleGoogleResponse = async (response) => {
+  const handleGoogleResponse = useCallback(async (response) => {
     setIsLoading(true);
     
     try {
@@ -153,12 +153,12 @@ const EnhancedGoogleSignIn = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [onSuccess, onError]);
 
   /**
    * Initialize Google Sign-In
    */
-  const initializeGoogleSignIn = async () => {
+  const initializeGoogleSignIn = useCallback(async () => {
     try {
       const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       
@@ -184,7 +184,7 @@ const EnhancedGoogleSignIn = ({
       setInitializationError(error.message);
       return false;
     }
-  };
+  }, [loadGoogleScript, handleGoogleResponse]);
 
   /**
    * Initialize Google Sign-In on component mount
@@ -218,7 +218,7 @@ const EnhancedGoogleSignIn = ({
     };
 
     initialize();
-  }, []);
+  }, [initializeGoogleSignIn]);
 
   /**
    * Handle custom button click
