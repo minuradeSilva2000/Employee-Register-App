@@ -9,7 +9,6 @@ const employeeSchema = new mongoose.Schema({
   employeeId: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
     match: [/^EMP\d{6}$/, 'Employee ID must be in format EMP000000']
   },
@@ -26,14 +25,12 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     required: [true, 'NIC is required'],
     trim: true,
-    unique: true,
     match: [/^\d{9}[Vv]$/, 'NIC must be in format 123456789V']
   },
   
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,
     lowercase: true,
     trim: true,
     match: [

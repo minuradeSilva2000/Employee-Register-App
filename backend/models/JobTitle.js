@@ -58,7 +58,6 @@ const jobTitleSchema = new mongoose.Schema({
 /**
  * Indexes for performance
  */
-jobTitleSchema.index({ title: 1 }, { unique: true });
 jobTitleSchema.index({ isDeleted: 1 });
 
 /**

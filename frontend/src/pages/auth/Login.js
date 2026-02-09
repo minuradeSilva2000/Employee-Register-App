@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser, FiBriefcase, FiUsers, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import QuickActionButton from '../../components/ui/QuickActionButton';
+import LoginPageQuickAction from '../../components/ui/LoginPageQuickAction';
 import EnhancedGoogleSignIn from '../../components/auth/EnhancedGoogleSignIn';
 import toast from 'react-hot-toast';
 
@@ -264,14 +264,12 @@ const Login = () => {
                   <h3 className="text-xl font-semibold mb-6">Quick Actions</h3>
                   <div className="space-y-4">
                     {quickActions.map((action, index) => (
-                      <QuickActionButton
+                      <LoginPageQuickAction
                         key={action.title}
                         icon={action.icon}
                         title={action.title}
                         description={action.description}
                         color={action.color}
-                        route={action.route}
-                        requiredRoles={action.roleAccess}
                         index={index}
                       />
                     ))}

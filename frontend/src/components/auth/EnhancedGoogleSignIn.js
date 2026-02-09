@@ -26,7 +26,7 @@ const EnhancedGoogleSignIn = ({
   /**
    * Check Google Client ID configuration
    */
-  const checkGoogleConfiguration = () => {
+  const checkGoogleConfiguration = useCallback(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     
     // Check if client ID is configured and not a placeholder
@@ -42,7 +42,7 @@ const EnhancedGoogleSignIn = ({
     }
     
     return true;
-  };
+  }, []);
 
   /**
    * Load Google Identity Services Script
@@ -218,7 +218,7 @@ const EnhancedGoogleSignIn = ({
     };
 
     initialize();
-  }, [initializeGoogleSignIn]);
+  }, [initializeGoogleSignIn, checkGoogleConfiguration]);
 
   /**
    * Handle custom button click

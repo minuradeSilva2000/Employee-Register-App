@@ -16,8 +16,7 @@ async function initializeDatabase() {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/employee_management';
     
     await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      // Remove deprecated options
     });
     
     console.log('✅ Connected to MongoDB successfully');

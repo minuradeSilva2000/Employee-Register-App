@@ -58,7 +58,6 @@ const departmentSchema = new mongoose.Schema({
 /**
  * Indexes for performance
  */
-departmentSchema.index({ name: 1 }, { unique: true });
 departmentSchema.index({ isDeleted: 1 });
 
 /**

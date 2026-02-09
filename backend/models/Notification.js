@@ -116,7 +116,6 @@ const notificationSchema = new mongoose.Schema({
 notificationSchema.index({ userId: 1, isRead: 1 });
 notificationSchema.index({ targetRole: 1, isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
-notificationSchema.index({ expiresAt: 1 });
 notificationSchema.index({ entityType: 1, entityId: 1 });
 notificationSchema.index({ priority: 1 });
 

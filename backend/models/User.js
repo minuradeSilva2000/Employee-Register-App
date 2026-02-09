@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,
     lowercase: true,
     trim: true,
     match: [
@@ -37,8 +36,7 @@ const userSchema = new mongoose.Schema({
   
   // Google OAuth fields
   googleId: {
-    type: String,
-    sparse: true // Allow multiple null values but unique non-null values
+    type: String
   },
   
   profilePicture: {
@@ -157,15 +155,30 @@ userSchema.methods.updateLastLogin = function() {
 };
 
 /**
- * Instance method to update login info
+ * Instance method to add refresh token
  */
-userSchema.methods.updateLoginInfo = function() {
-  this.lastLogin = new Date();
-  // Add login count if it doesn't exist
-  if (typeof this.loginCount === 'undefined') {
-    this.loginCount = 0;
+userSchema.methods.addRefreshToken = function(token) {
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+  
+  this.refreshTokens.push({
+    token: token,
+    expiresAt: expiresAt
+  });
+  
+  // Keep only the last 5 refresh tokens
+  if (this.refreshTokens.length > 5) {
+    this.refreshTokens = this.refreshTokens.slice(-5);
   }
-  this.loginCount += 1;
+};
+
+/**
+ * Instance method to remove refresh token
+ */
+userSchema.methods.removeRefreshToken = function(token) {
+  this.refreshTokens = this.refreshTokens.filter(
+    tokenObj => tokenObj.token !== token
+  );
 };
 
 /**

@@ -3,8 +3,8 @@ version: '3.8'
 services:
   # MongoDB Database
   mongodb:
-    image: mongo:7.0
-    container_name: employee-mongodb
+    image: mongo:6.0
+    container_name: employee-management-db
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
@@ -16,7 +16,7 @@ services:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - employee-network
+      - employee-management-network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 30s
@@ -24,75 +24,60 @@ services:
       retries: 3
       start_period: 40s
 
-  # Backend API
-  backend:
+  # Employee Management Application
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-      target: production  # Use production stage from multi-stage build
-    container_name: employee-backend
+    container_name: employee-management-app
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      # Server Configuration
       PORT: 5000
+      NODE_ENV: production
+      
+      # MongoDB Configuration
       MONGODB_URI: mongodb://admin:password123@mongodb:27017/employee_management?authSource=admin
-      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_key_here_make_it_long_and_random_for_production}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_key_here_make_it_long_and_random_for_production}
+      
+      # JWT Configuration
+      JWT_SECRET: your_production_jwt_secret_key_here_make_it_very_long_and_random
+      JWT_REFRESH_SECRET: your_production_jwt_refresh_secret_key_here_make_it_very_long_and_random
       JWT_EXPIRE: 15m
       JWT_REFRESH_EXPIRE: 7d
-      FRONTEND_URL: http://localhost:3000
+      
+      # CORS Configuration
+      FRONTEND_URL: http://localhost:5000
+      
+      # Rate Limiting
       RATE_LIMIT_WINDOW_MS: 900000
       RATE_LIMIT_MAX_REQUESTS: 100
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_client_id_here}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your_google_client_secret_here}
-      GOOGLE_CALLBACK_URL: http://localhost:5000/api/auth/google/callback
-      SESSION_SECRET: ${SESSION_SECRET:-your_session_secret_key_here_make_it_long_and_random_for_production}
+      
+      # Google OAuth Configuration (Optional - replace with real credentials)
+      GOOGLE_CLIENT_ID: demo-client-id.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: demo-client-secret
+      GOOGLE_REDIRECT_URI: http://localhost:5000/auth/google/callback
     ports:
       - "5000:5000"
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
-      - employee-network
-    volumes:
-      - ./backend/logs:/app/logs
+      - employee-management-network
     healthcheck:
       test: ["CMD", "node", "healthcheck.js"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  # Frontend React App
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: production  # Use production stage from multi-stage build
-      args:
-        VITE_API_URL: http://localhost:5000/api
-        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_client_id_here}
-        VITE_ENV: production
-    container_name: employee-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
-    networks:
-      - employee-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    volumes:
+      - app_logs:/app/logs
 
 volumes:
   mongodb_data:
     driver: local
+  app_logs:
+    driver: local
 
 networks:
-  employee-network:
+  employee-management-network:
     driver: bridge
