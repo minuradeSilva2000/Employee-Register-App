@@ -19,6 +19,19 @@ import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { User, LoginCredentials, AuthResponse } from '../types';
 
+// Extend Window interface for Google API
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+  }
+}
+
 // ==================== INTERFACES ====================
 
 interface AuthState {
@@ -78,8 +91,6 @@ const AUTH_ACTIONS = {
   CLEAR_ERROR: 'CLEAR_ERROR',
   UPDATE_USER: 'UPDATE_USER',
 } as const;
-
-type AuthActionType = typeof AUTH_ACTIONS[keyof typeof AUTH_ACTIONS];
 
 // Union type for all possible actions
 type AuthAction =
@@ -301,10 +312,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
-      const response: AuthResponse = await authAPI.login(credentials);
+      const response = await authAPI.login(credentials);
+      const data: AuthResponse = response.data;
       
-      if (response.success && response.data) {
-        const { accessToken, refreshToken, user } = response.data;
+      if (data.success && data.data) {
+        const { accessToken, refreshToken, user } = data.data;
         
         // Store tokens FIRST
         setTokens(accessToken, refreshToken);
@@ -320,7 +332,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Return user data for navigation
         return { success: true, user };
       } else {
-        throw new Error(response.message || 'Invalid credentials');
+        throw new Error(data.message || 'Invalid credentials');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Invalid credentials';
@@ -386,10 +398,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       dispatch({ type: AUTH_ACTIONS.REFRESH_TOKEN_START });
 
-      const response: AuthResponse = await authAPI.refreshToken({ refreshToken: token });
+      const response = await authAPI.refreshToken({ refreshToken: token });
+      const data: AuthResponse = response.data;
       
-      if (response.success && response.data) {
-        const { accessToken, user } = response.data;
+      if (data.success && data.data) {
+        const { accessToken, user } = data.data;
         
         // Update access token
         localStorage.setItem('accessToken', accessToken);
@@ -402,7 +415,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         return { success: true };
       } else {
-        throw new Error(response.message || 'Token refresh failed');
+        throw new Error(data.message || 'Token refresh failed');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Token refresh failed';
@@ -429,15 +442,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       dispatch({ type: AUTH_ACTIONS.LOAD_USER_START });
 
-      const response: AuthResponse = await authAPI.verifyToken();
+      const response = await authAPI.verifyToken();
+      const data: AuthResponse = response.data;
       
-      if (response.success && response.data) {
+      if (data.success && data.data) {
         dispatch({
           type: AUTH_ACTIONS.LOAD_USER_SUCCESS,
-          payload: response.data,
+          payload: data.data,
         });
       } else {
-        throw new Error(response.message || 'Token verification failed');
+        throw new Error(data.message || 'Token verification failed');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to load user';
