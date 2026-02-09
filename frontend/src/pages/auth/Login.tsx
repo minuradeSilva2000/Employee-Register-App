@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser, FiBriefcase, FiUsers, FiTrendingUp } from 'react-icons/fi';
+import { IconType } from 'react-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import LoginPageQuickAction from '../../components/ui/LoginPageQuickAction';
 import EnhancedGoogleSignIn from '../../components/auth/EnhancedGoogleSignIn';
 import toast from 'react-hot-toast';
+import { LoginCredentials } from '../../types';
 
 // Animation variants
 const containerVariants = {
@@ -70,16 +72,41 @@ const formVariants = {
   },
 };
 
-const Login = () => {
+interface FormData {
+  email: string;
+  password: string;
+}
+
+interface FormErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
+
+interface QuickAction {
+  icon: IconType;
+  title: string;
+  description: string;
+  color: string;
+  route: string;
+  roleAccess: string[];
+}
+
+interface GoogleAuthData {
+  credential: string;
+  clientId: string;
+}
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login, loginWithGoogle, isAuthenticated, isLoading } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -89,7 +116,7 @@ const Login = () => {
   }, [isAuthenticated, navigate]);
 
   // Handle input changes
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -97,7 +124,7 @@ const Login = () => {
     }));
     
     // Clear error for this field
-    if (errors[name]) {
+    if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({
         ...prev,
         [name]: '',
@@ -106,8 +133,8 @@ const Login = () => {
   };
 
   // Validate form
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
     
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -124,7 +151,7 @@ const Login = () => {
   };
 
   // Handle Google Sign-In success
-  const handleGoogleSuccess = async (googleData) => {
+  const handleGoogleSuccess = async (googleData: GoogleAuthData): Promise<void> => {
     try {
       const result = await loginWithGoogle(googleData);
       if (result.success) {
@@ -140,13 +167,13 @@ const Login = () => {
   };
 
   // Handle Google Sign-In error
-  const handleGoogleError = (error) => {
+  const handleGoogleError = (error: any): void => {
     console.error('Google Sign-In error:', error);
     toast.error('Google Sign-In failed. Please try again.');
   };
 
   // Handle form submission with proper error handling and security
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -156,7 +183,12 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
-      const result = await login(formData);
+      const credentials: LoginCredentials = {
+        email: formData.email,
+        password: formData.password,
+      };
+      
+      const result = await login(credentials);
       
       if (result.success) {
         // Clear any previous errors
@@ -183,7 +215,7 @@ const Login = () => {
   };
 
   // Quick actions for demo purposes with proper routing and role-based access
-  const quickActions = [
+  const quickActions: QuickAction[] = [
     {
       icon: FiTrendingUp,
       title: 'Analytics',

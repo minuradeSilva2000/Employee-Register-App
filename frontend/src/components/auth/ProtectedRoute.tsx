@@ -1,11 +1,21 @@
-import React, { useEffect } from 'react';
+import { useEffect, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
-const ProtectedRoute = ({ children, requiredRoles = [], requiredPermissions = [] }) => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  requiredRoles?: string[];
+  requiredPermissions?: string[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRoles = [], 
+  requiredPermissions = [] 
+}) => {
   const { isAuthenticated, isLoading, user, hasAnyRole, hasAnyPermission } = useAuth();
   const location = useLocation();
 

@@ -3,12 +3,22 @@
  * Protects routes based on user roles
  */
 
-import React from 'react';
+import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
-const RoleRoute = ({ children, requiredRoles, fallbackPath = '/unauthorized' }) => {
+interface RoleRouteProps {
+  children: ReactNode;
+  requiredRoles: string[];
+  fallbackPath?: string;
+}
+
+const RoleRoute: React.FC<RoleRouteProps> = ({ 
+  children, 
+  requiredRoles, 
+  fallbackPath = '/unauthorized' 
+}) => {
   const { isAuthenticated, isLoading, hasAnyRole } = useAuth();
 
   // Show loading spinner while checking authentication
@@ -34,7 +44,7 @@ const RoleRoute = ({ children, requiredRoles, fallbackPath = '/unauthorized' }) 
   }
 
   // Render children if all checks pass
-  return children;
+  return <>{children}</>;
 };
 
 export default RoleRoute;

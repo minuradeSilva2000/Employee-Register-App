@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
@@ -49,12 +48,12 @@ const pageVariants = {
 };
 
 const pageTransition = {
-  type: 'tween',
+  type: 'tween' as const,
   ease: 'anticipate',
   duration: 0.3
 };
 
-function App() {
+const App: React.FC = () => {
   return (
     <div className="App">
       <AuthProvider>
