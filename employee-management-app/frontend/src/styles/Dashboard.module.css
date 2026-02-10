@@ -1,0 +1,250 @@
+/* Dashboard Styles */
+
+.container {
+  min-height: 100vh;
+  background: #F8F9FA;
+}
+
+.header {
+  background: linear-gradient(135deg, #4169E1 0%, #3457D5 100%);
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logoutButton {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid white;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.main {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #1A1A1A;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  padding: 30px;
+  borderRadius: 12px;
+  cursor: pointer;
+  textAlign: center;
+  color: white;
+  boxShadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  boxShadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+  fontSize: 48px;
+  marginBottom: 15px;
+}
+
+.cardTitle {
+  fontSize: 20px;
+  fontWeight: 600;
+  marginBottom: 8px;
+}
+
+.cardDesc {
+  fontSize: 14px;
+  opacity: 0.9;
+}
+
+.actionView {
+  background: white;
+  borderRadius: 12px;
+  padding: 30px;
+  boxShadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.backButton {
+  padding: 10px 20px;
+  background: #4169E1;
+  color: white;
+  border: none;
+  borderRadius: 6px;
+  cursor: pointer;
+  marginBottom: 20px;
+  fontWeight: 500;
+}
+
+.title {
+  fontSize: 24px;
+  fontWeight: 700;
+  marginBottom: 20px;
+  color: #1A1A1A;
+}
+
+.form {
+  display: flex;
+  flexDirection: column;
+  gap: 15px;
+}
+
+.input,
+.textarea {
+  padding: 12px;
+  fontSize: 14px;
+  border: 1px solid #E5E7EB;
+  borderRadius: 8px;
+  fontFamily: inherit;
+}
+
+.textarea {
+  minHeight: 100px;
+  resize: vertical;
+}
+
+.button {
+  padding: 14px;
+  fontSize: 16px;
+  fontWeight: 600;
+  color: white;
+  background: #4CAF50;
+  border: none;
+  borderRadius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background: #45A049;
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 12px;
+  background: #F0FDF4;
+  color: #16A34A;
+  borderRadius: 8px;
+  fontSize: 14px;
+}
+
+.list {
+  display: grid;
+  gap: 15px;
+}
+
+.listCard {
+  padding: 20px;
+  background: #F9FAFB;
+  borderRadius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+.editButton,
+.deleteButton,
+.saveButton,
+.cancelButton {
+  padding: 8px 16px;
+  border: none;
+  borderRadius: 6px;
+  cursor: pointer;
+  fontWeight: 500;
+  marginTop: 10px;
+}
+
+.editButton {
+  background: #FF9800;
+  color: white;
+}
+
+.deleteButton {
+  background: #F44336;
+  color: white;
+}
+
+.saveButton {
+  background: #4CAF50;
+  color: white;
+}
+
+.cancelButton {
+  background: #9CA3AF;
+  color: white;
+}
+
+.csvButton,
+.pdfButton {
+  padding: 10px 20px;
+  border: none;
+  borderRadius: 6px;
+  cursor: pointer;
+  fontWeight: 500;
+  color: white;
+}
+
+.csvButton {
+  background: #4CAF50;
+}
+
+.pdfButton {
+  background: #F44336;
+}
+
+.table {
+  width: 100%;
+  borderCollapse: collapse;
+  background: white;
+  borderRadius: 8px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  textAlign: left;
+  borderBottom: 1px solid #E5E7EB;
+}
+
+.table th {
+  background: #F9FAFB;
+  fontWeight: 600;
+  color: #374151;
+}
