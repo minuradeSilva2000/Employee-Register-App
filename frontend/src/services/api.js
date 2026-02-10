@@ -27,9 +27,19 @@ api.interceptors.request.use(
 // Response interceptor to handle common errors
 api.interceptors.response.use(
   (response) => {
+    // Return the data directly for successful responses
     return response.data;
   },
   async (error) => {
+    // Handle network errors (no response from server)
+    if (!error.response) {
+      console.error('❌ Network Error:', error.message);
+      const networkError = new Error('Network error: Unable to connect to server. Please check if the backend is running.');
+      networkError.isNetworkError = true;
+      toast.error('Unable to connect to server. Please check your connection.');
+      return Promise.reject(networkError);
+    }
+
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized errors

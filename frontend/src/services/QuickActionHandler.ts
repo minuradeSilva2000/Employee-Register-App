@@ -5,7 +5,7 @@
  */
 
 import { QuickActionType, QuickActionPayload, QuickActionResult } from '../models/QuickAction.model';
-import { Employee, EmployeeFormData } from '../models/Employee.model';
+import { EmployeeFormData } from '../models/Employee.model';
 import { employeeService } from './EmployeeService';
 
 /**

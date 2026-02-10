@@ -312,11 +312,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
-      const response = await authAPI.login(credentials);
-      const data: AuthResponse = response.data;
+      console.log('🔵 Attempting login with:', credentials.email);
+
+      // authAPI.login returns response.data directly (due to interceptor)
+      const data = await authAPI.login(credentials) as any;
       
-      if (data.success && data.data) {
+      console.log('🔍 Login response received:', { 
+        success: data?.success, 
+        hasData: !!data?.data,
+        hasUser: !!data?.data?.user,
+        hasToken: !!data?.data?.accessToken
+      });
+      
+      if (data && data.success && data.data) {
         const { accessToken, refreshToken, user } = data.data;
+        
+        console.log('✅ Login successful, storing tokens...');
         
         // Store tokens FIRST
         setTokens(accessToken, refreshToken);
@@ -329,20 +340,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         toast.success(`Welcome back, ${user.name}!`);
         
+        console.log('✅ Auth state updated, returning success');
+        
         // Return user data for navigation
         return { success: true, user };
       } else {
-        throw new Error(data.message || 'Invalid credentials');
+        const errorMsg = data?.message || 'Invalid credentials';
+        console.error('❌ Login failed - invalid response:', errorMsg);
+        throw new Error(errorMsg);
       }
     } catch (error: any) {
+      console.error('❌ Login error caught:', error);
+      
+      // Handle network errors
+      if (error.isNetworkError || error.code === 'ERR_NETWORK' || !error.response) {
+        const networkErrorMsg = 'Unable to connect to server. Please ensure the backend is running on port 5000.';
+        console.error('❌ Network error:', networkErrorMsg);
+        
+        dispatch({
+          type: AUTH_ACTIONS.LOGIN_FAILURE,
+          payload: networkErrorMsg,
+        });
+        
+        return { success: false, error: networkErrorMsg };
+      }
+      
+      // Handle API errors
       const errorMessage = error.response?.data?.message || error.message || 'Invalid credentials';
+      
+      console.error('❌ API error:', errorMessage);
       
       dispatch({
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: errorMessage,
       });
-
-      console.error('Login failed:', errorMessage);
       
       return { success: false, error: errorMessage };
     }
